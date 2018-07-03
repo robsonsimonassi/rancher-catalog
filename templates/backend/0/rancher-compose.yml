@@ -1,22 +1,39 @@
-.catalog:
-  name: backend
-  version: b001
-  description:
-  uuid: backend-1
-  minimum_rancher_version: 1.6
-  questions:
-    - variable: "name"
-      description:
-      label: "Name:"
-      required: true
-      default: 'TESTE_ENV'
-      type: "string"
-
 version: '2'
+volumes:
+  vol-mongo:
+    driver: local
+  vol-nodered:
+    driver: local
 services:
-  mongo:
-    scale: 1
-    start_on_create: true
-  nodered:
-    scale: 1
-    start_on_create: true
+  mongo-db:
+    image: mongo:3.6-jessie
+    environment:
+      MONGO_INITDB_DATABASE: ${mongo-db-name}
+    volumes:
+    - vol-mongo:/data/db:rw
+    labels:
+      io.rancher.scheduler.affinity:host_label: group=hosts
+  balance:
+    image: rancher/lb-service-haproxy:v0.9.1
+    ports:
+    - ${mongoclient-port}:${mongoclient-port}/tcp
+    - ${nodered-port}:${nodered-port}/tcp
+    labels:
+      io.rancher.scheduler.affinity:host_label: group=hosts
+      io.rancher.container.agent.role: environmentAdmin,agent
+      io.rancher.container.agent_service.drain_provider: 'true'
+      io.rancher.container.create_agent: 'true'
+  mongo-client:
+    image: mongoclient/mongoclient
+    environment:
+      MONGO_URL: mongodb://mongo-db:27017
+    links:
+    - mongo-db:mongo-db
+    labels:
+      io.rancher.scheduler.affinity:host_label: group=hosts
+  node-red:
+    image: robsonsimonassi/nodered
+    volumes:
+    - vol-nodered:/data:rw
+    links:
+    - mongo-db:mongo-db
