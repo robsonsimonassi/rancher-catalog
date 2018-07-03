@@ -26,6 +26,14 @@
       default: 2001
       type: "int"
 
+    - variable: "banana_port"
+      description: "banana"
+      label: "Banana Port:"
+      required: true
+      default: 2002
+      type: "int"
+
+
 version: '2'
 services:
   mongo-db:
