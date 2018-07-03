@@ -11,14 +11,12 @@
       required: true
       default: "db-teste"
       type: "string"
-    
     - variable: "mongoclient-port"
       description: "passar a porta do mongoclient"
       label: "MongoClient Port:"
       required: true
       default: 2000
       type: "int"
-
    - variable: "nodered-port"
       description: "passar a porta do nodered"
       label: "NoderRed Port:"
